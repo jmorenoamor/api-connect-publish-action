@@ -1,12 +1,37 @@
-name: 'Container Action Template'
-description: 'Get started with Container actions'
-author: 'GitHub'
-inputs: 
-  myInput:
-    description: 'Input to use'
-    default: 'world'
+name: "API Connect product publish"
+description: "Publish a product to an IBM API Connect platform"
+author: "Jesús Moreno Amor"
+inputs:
+  productFile:
+    description: "Product file to publish"
+    required: true
+  managerHost:
+    description: "API Connect Manager endpoint"
+    required: true
+  managerUsername:
+    description: "API Connect Manager username"
+    required: true
+  managerPassword:
+    description: "API Connect Manager password"
+    required: true
+  managerRealm:
+    description: "API Connect Manager authentication realm"
+    default: provider/default-idp-2
+  catalog:
+    description: "Catalog where the product will be published"
+    default: "sandbox"
+  organization:
+    description: "Provider organization where the catalog is located"
+    default: "localtest"
+  space:
+    description: "If the catalog has spaces activated, the space to publish the product"
+    default: null
+outputs:
+  result:
+    description: "Result of the publish"
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  args:
-    - ${{ inputs.myInput }}
+  using: "docker"
+  image: "Dockerfile"
+branding:
+  icon: 'truck'
+  color: 'blue'
