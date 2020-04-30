@@ -44,7 +44,7 @@ def load_yaml(filename, encoding='utf-8'):
         return yaml.safe_load(file)
 
 
-def prepare_product(product_file):
+def prepare_product(product_file, clean_api_reference=False):
     """Creates the payload for a product publish request"""
 
     # Load the product
@@ -73,8 +73,11 @@ def prepare_product(product_file):
             product_path = os.path.dirname(product_file)
 
             # Clean the API reference name
-            clean_name = api_definition['$ref'].split('_')[0] + ".yaml"
-            logger.debug(f"Cleaned {api_definition['$ref']} to {clean_name}")
+            if clean_api_reference:
+                clean_name = api_definition['$ref'].split('_')[0] + ".yaml"
+                logger.debug(f"Cleaned {api_definition['$ref']} to {clean_name}")
+            else:
+                clean_name = api_definition['$ref']
 
             # Load the API
             api_filename = os.path.join(product_path, clean_name)
