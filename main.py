@@ -71,6 +71,10 @@ def prepare_product(product_file, clean_api_reference=False):
                 name: 'resourceconfigurationrest:1.1'
             '''
             product_path = os.path.dirname(product_file)
+            api_path = os.path.dirname(api_definition['$ref'])
+
+            logger.debug(f"Product path: {product_path}")
+            logger.debug(f"API path: {api_path}")
 
             # Clean the API reference name
             if clean_api_reference:
