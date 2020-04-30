@@ -71,10 +71,10 @@ def prepare_product(product_file, clean_api_reference=False):
                 name: 'resourceconfigurationrest:1.1'
             '''
             product_path = os.path.dirname(product_file)
-            api_path = os.path.dirname(api_definition['$ref'])
-
             logger.debug(f"Product path: {product_path}")
-            logger.debug(f"API path: {api_path}")
+
+            api_path = os.path.dirname(api_definition['$ref'])
+            logger.debug(f"API basepath: {api_path}")
 
             # Clean the API reference name
             if clean_api_reference:
@@ -83,8 +83,11 @@ def prepare_product(product_file, clean_api_reference=False):
             else:
                 clean_name = api_definition['$ref']
 
+            logger.debug(f"Clean name: {clean_name}")
+
             # Load the API
             api_filename = os.path.join(product_path, clean_name)
+            logger.debug(f"API filename: {api_filename}")
             api = load_yaml(api_filename, encoding='utf-8')
 
             # Transform the reference from $ref to name
