@@ -26,12 +26,23 @@ inputs:
   space:
     description: "If the catalog has spaces activated, the space to publish the product"
     default: null
+  subscribe:
+    description: "Create a subscription to the product after publishng it"
+    default: false
+  application:
+    description: Application to subscribe to the product
+  plan:
+    description: Subscription plan
+  consumerOrganization:
+    description: Consumer organization where the application is located
   cleanAPIReference:
     description: "Remove the version from the API reference before loading it. This is a personal need, so just ignore it"
     default: False
 outputs:
   result:
     description: "Result of the publish"
+  resume:
+    description: "Verbose text resume of the operations done"
 runs:
   using: "docker"
   image: "Dockerfile"

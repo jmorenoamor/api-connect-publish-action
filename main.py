@@ -133,9 +133,13 @@ def main():
     manager_realm = os.getenv("INPUT_MANAGERREALM")
     catalog = os.getenv("INPUT_CATALOG")
     organization = os.getenv("INPUT_ORGANIZATION")
-    space = os.getenv("INPUT_SPACE ", None)
+    space = os.getenv("INPUT_SPACE", None)
+    needs_subscription = os.getenv("INPUT_SUBSCRIBE") in ['true', '1']
+    application = os.getenv("INPUT_APPLICATION")
+    plan = os.getenv("INPUT_PLAN")
+    consumer_organization = os.getenv("INPUT_CONSUMERORGANIZATION")
 
-    apic = APIConnect(manager=manager_host)
+    apic = APIConnect(manager=manager_host, debug=False)
     apic.verify_ssl = False
 
     # Login
@@ -147,27 +151,54 @@ def main():
     product_payload = prepare_product(product_file)
 
     # Publish the product
+    github_logger.info("Publishing the product...")
     published_product = apic.product_publish(organization, catalog, None, product_payload, space)
     github_logger.info("Published the product")
 
     # Get product status
     product_version = product['info']['version']
     product_name = product['info']['name']
+    product_title = product['info']['title']
+    github_logger.info("Checking the product...")
     published_product = apic.product_get(organization, catalog, product_name, product_version)
-    github_logger.info("Checked the product")
     # print(json.dumps(published_product, indent=2))
+    github_logger.info("Checked the product")
 
     # Return the status of the product
     product_state = published_product.get('state', None)
     print(f"::set-output name=result::{product_state}")
 
+    # Subscribe the application to the product
     if product_state != "published":
         raise Exception("Product not published correctly")
+
+    if needs_subscription:
+        # product_url = published_product.get('url')
+        product_id = published_product.get('id')
+        product_url = f"https://apict-api-manager-ui.internal.vodafone.com/api/catalogs/{organization}/{catalog}/products/{product_id}"
+
+        github_logger.info("Creating the subscription...")
+        subscription = apic.subscription_create(product_url, organization, catalog, application, plan, consumer_organization)
+        # print(json.dumps(subscription, indent=2))
+        if subscription.get('state') != "enabled":
+            raise Exception("Subscription not enabled")
+        github_logger.info("Subscription created and enabled.")
+
+    # Operation resume
+    resume = f"Published the {product_title} product to catalog {catalog}"
+    if space:
+        resume += f" space {space}"
+    if needs_subscription:
+        resume += f" and subscribed {application} app to {plan} plan"
+
+    print(f"::set-output name=resume::{resume}")
 
 if __name__ == "__main__":
     try:
         main()
         exit(0)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         github_logger.error(str(e))
         exit(99)
